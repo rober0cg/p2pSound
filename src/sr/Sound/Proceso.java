@@ -36,7 +36,7 @@ public class Proceso {
         return;
     }
 
-    public int EjecutaLlamante (String remote, String port ) {
+    public int ConectaLlamante (String remote, String port ) {
         int nPortCTL = Integer.valueOf(port) ;
         int nPortDAT = nPortCTL ;
 
@@ -83,13 +83,10 @@ public class Proceso {
             return -3;
         }
 
-    // Inicio de los hilos de envía captura y reproduce recibido
-        IniciaHilosEnviaRecibe();
-
         return 0;
     }
 
-    public int EjecutaLlamado ( String port ) {
+    public int ConectaLlamado ( String port ) {
         int nPortCTL = Integer.valueOf(port) ;
         int nPortDAT = nPortCTL ;
 
@@ -153,13 +150,26 @@ public class Proceso {
         sCTL.send(bufConfirm);
         System.out.println( "SEND srtConfirm=" + strConfirm );
 
-        // Inicio de los hilos de envía captura y reproduce recibido
-        IniciaHilosEnviaRecibe();
 
         return 0;
     }
+    public int getRate() {
+        return AppParams.getSampleRate();
+    }
+    public int getChannels() {
+        return AppParams.getChannels();
+    }
+    public int getBits() {
+        return AppParams.getSampleSizeInBits();
+    }
+    public int getPacketXSize() {
+        return AppParams.getPacketSize();
+    }
+    public int getPacket1Size() {
+        return AppParams.getPacket1Size();
+    }
 
-    public void IniciaHilosEnviaRecibe () {
+    public void EjecutaHilosEnviaRecibe () {
         rREC = new Recorder(AppParams.inDevice);
         pPLY = new Player(AppParams.outDevice);
 

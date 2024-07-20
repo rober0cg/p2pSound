@@ -393,13 +393,40 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
             proceso.Parametros(I,O,r,c,b,nx,n1);
 
-            if ( host==null ) { // server, llamado
-                proceso.EjecutaLlamado (port) ;
+            int rc=0;
+            if ( host!=null ) { // client, llamante
+                rc = proceso.ConectaLlamante (host, port) ;
             }
-            else { // client, llamante
-                proceso.EjecutaLlamante (host, port) ;
+            else { // server, llamado. recupera datos de configuración
+                rc = proceso.ConectaLlamado (port) ;
             }
 
+            if ( rc < 0 ) {
+                System.out.println("ERROR: ConectaLlamante/Llamado rc="+rc);
+                bLlamada.setEnabled(true);
+                bFinSalir.setText(sFinSalir);
+                bFinSalir.setActionCommand(acSalir);
+                return;
+            }
+
+            if ( host==null ) { // llamdo, server... actualizar datos de configuración audio
+                r = proceso.getRate();
+                c = proceso.getChannels();
+                b = proceso.getBits();
+                nx = proceso.getPacketXSize();
+                n1 = proceso.getPacket1Size();
+/*
+                String rate = (String)cbRate.getSelectedItem();
+                String channels = (String)cbChannels.getSelectedItem();
+                String bits = (String)cbBits.getSelectedItem();
+                String Mx = (String) snMxPaquete.getValue();
+                String M1 = (String) snM1Paquete.getValue();
+*/
+            }
+            
+            // Inicio de los hilos de envía captura y reproduce recibido
+            proceso.EjecutaHilosEnviaRecibe();
+            
         }
 
         if ( o==bFinSalir ) {
