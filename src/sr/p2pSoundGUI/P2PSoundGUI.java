@@ -31,11 +31,11 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 // Bloque AUDIO
     private static int xA0=10, yA0=5;
 
-    protected static JLabel lAudio;
+//    protected static JLabel lAudio;
     private static String sAudio = "Audio";
     private static int lxlAudio     = 10+xA0, lylAudio     = 4+yA0, swlAudio      = 80, shlAudio     = tWidth;
     
-    private static JLabel lEntrada, lSalida;
+//    private static JLabel lEntrada, lSalida;
     private static String sEntrada = "Entrada", sSalida = "Salida";
     private static int lxlEntrada   = 20+xA0, lylEntrada   = 24+yA0, swlEntrada   = 60, shlEntrada   = tWidth;
     private static int lxlSalida    = 20+xA0, lylSalida    = 44+yA0, swlSalida    = 60, shlSalida    = tWidth;
@@ -54,7 +54,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     private static String sCalidad = "Calidad sonido";
     private static int lxlCalidad   = 10+xQ0, lylCalidad   = 4+yQ0, swlCalidad    =180, shlCalidad   = tWidth;
     
-    private static JLabel lRate, lChannels, lBits;
+//    private static JLabel lRate, lChannels, lBits;
     private static String sRate = "Rate", sChannels = "Channels", sBits = "Bits";
     private static int lxlRate      = 20+xQ0, lylRate      = 24+yQ0, swlRate      = 60, shlRate      = tWidth;
     private static int lxlChannels  = 20+xQ0, lylChannels  = 44+yQ0, swlChannels  = 60, shlChannels  = tWidth;
@@ -80,11 +80,11 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 // Bloque PAQUETES
     private static int xP0=300, yP0=80;
 
-    protected static JLabel lPaquete;
+//    protected static JLabel lPaquete;
     private static String sPaquete = "Tamaño paquetes";
     private static int lxlPaquete   = 10+xP0, lylPaquete   = 4+yP0, swlPaquete    =180, shlPaquete   = tWidth;
 
-    private static JLabel lMxPaquete, lM1Paquete;
+//    private static JLabel lMxPaquete, lM1Paquete;
     private static String sMxPaquete = "Todos", sM1Paquete = "Primero";
     private static int lxlMxPaquete    = 20+xP0, lylMxPaquete    =24+yP0, swlMxPaquete    = 60, shlMxPaquete    = tWidth;
     private static int lxlM1Paquete    = 20+xP0, lylM1Paquete    =44+yP0, swlM1Paquete    = 60, shlM1Paquete    = tWidth;
@@ -109,37 +109,37 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
 
     // Bloque CONEXION
-    private static int xC0=260, yC0=180;
+    private static int xC0=220, yC0=180;
 
-    private static JLabel lConex;
+//    private static JLabel lConex;
     private static String sConex = "Conexión";
     private static int lxlConex     = 10+xC0, lylConex     =  4+yC0, swlConex     = 80, shlConex     = tWidth;
 
     private static JRadioButton rbLlamante, rbLlamado;
     private static ButtonGroup bgLlamanteLlamado;
     private static String sLlamante = "Llamante", sLlamado = "Llamado";
-    private static int lxrbLlamante = 20+xC0, lyrbLlamante = 24+yC0, swrbLlamante = 80, shrbLlamante = tWidth; 
-    private static int lxrbLlamado  =100+xC0, lyrbLlamado  = 24+yC0, swrbLlamado  = 80, shrbLlamado  = tWidth; 
+    private static int lxrbLlamante = 20+xC0, lyrbLlamante = 24+yC0, swrbLlamante =100, shrbLlamante = tWidth; 
+    private static int lxrbLlamado  =120+xC0, lyrbLlamado  = 24+yC0, swrbLlamado  =100, shrbLlamado  = tWidth; 
 
-    private static JLabel lHost, lPort;
-    private static String sHost = "Host", sPort = "Port";
-    private static int lxlHost      = 20+xC0, lylHost      = 44+yC0, swlHost      = 40, shlHost      = tWidth;
+//    private static JLabel lRemote, lPort;
+    private static String sRemote = "Host", sPort = "Port";
+    private static int lxlRemote    = 20+xC0, lylRemote    = 44+yC0, swlRemote    = 40, shlRemote    = tWidth;
     private static int lxlPort      = 20+xC0, lylPort      = 64+yC0, swlPort      = 40, shlPort      = tWidth;
 
     private static JTextField tHost, tPort;
-    private static int lxtHost      = 60+xC0, lytHost      = 44+yC0, swtHost      =120, shtHost      = tWidth;
-    private static int lxtPort      = 60+xC0, lytPort      = 64+yC0, swtPort      =120, shtPort      = tWidth;
+    private static int lxtHost      = 60+xC0, lytHost      = 44+yC0, swtHost      =140, shtHost      = tWidth;
+    private static int lxtPort      = 60+xC0, lytPort      = 64+yC0, swtPort      =140, shtPort      = tWidth;
 
     private static JButton bLlamada;
-    private static String sLlama = "Inicio Llamar", sEspera = "Inicio Esperar";
-    private static int lxbLlamada   =190+xC0, lybLlamada   = 24+yC0, swbLlamada   =120, shbLlamada   = 28;
+    private static String sLlama = "Iniciar Llamada", sEspera = "Esperar llamada";
+    private static int lxbLlamada   =220+xC0, lybLlamada   = 24+yC0, swbLlamada   =130, shbLlamada   = 28;
 
-    private static JButton bFin;
-    private static String sFin = "Fin / Salir";
-    private static int lxbFin       =190+xC0, lybFin       = 54+yC0, swbFin       =120, shbFin       = 28;
+    private static JButton bFinSalir;
+    private static String sFinSalir = "Salir", sFinLlamada = "Fin Llamada";
+    private static int lxbFin       =220+xC0, lybFin       = 54+yC0, swbFin       =130, shbFin       = 28;
 
     private static String acLlamante = "client", acLlamado = "server";
-    private static String acFin = "fin";
+    private static String acSalir = "salir", acFin = "fin";
 
 
     // Bloque LOG
@@ -199,28 +199,28 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         c.setOpaque(true);
 
     // Bloque AUDIO
-        c.add( lAudio = newJLabel( sAudio, lxlAudio, lylAudio, swlAudio, shlAudio ) );
+        c.add( newJLabel( sAudio, lxlAudio, lylAudio, swlAudio, shlAudio ) );
 
-        c.add( lEntrada = newJLabel( sEntrada, lxlEntrada, lylEntrada, swlEntrada, shlEntrada ) );
+        c.add( newJLabel( sEntrada, lxlEntrada, lylEntrada, swlEntrada, shlEntrada ) );
         scEntrada = Utils.getInputDevices();
         c.add( cbEntrada = newJComboBoxString(scEntrada,lxcbEntrada, lycbEntrada,swcbEntrada, shcbEntrada));
 
-        c.add( lSalida = newJLabel( sSalida, lxlSalida, lylSalida, swlSalida, shlSalida ) );
+        c.add( newJLabel( sSalida, lxlSalida, lylSalida, swlSalida, shlSalida ) );
         scSalida = Utils.getOutputDevices();
         c.add( cbSalida = newJComboBoxString(scSalida,lxcbSalida, lycbSalida,swcbSalida, shcbSalida));
 
     // Bloque CALIDAD
-        c.add( lCalidad = newJLabel( sCalidad, lxlCalidad, lylCalidad, swlCalidad, shlCalidad ) );
+        c.add( newJLabel( sCalidad, lxlCalidad, lylCalidad, swlCalidad, shlCalidad ) );
 
-        c.add( lRate = newJLabel( sRate, lxlRate, lylRate, swlRate, shlRate ) );
+        c.add( newJLabel( sRate, lxlRate, lylRate, swlRate, shlRate ) );
         c.add( cbRate = newJComboBoxString(scRate,lxcbRate, lycbRate,swcbRate, shcbRate));
             cbRate.addItemListener(this);
 
-        c.add( lChannels = newJLabel( sChannels, lxlChannels, lylChannels, swlChannels, shlChannels ) );
+        c.add( newJLabel( sChannels, lxlChannels, lylChannels, swlChannels, shlChannels ) );
         c.add( cbChannels = newJComboBoxString(scChannels,lxcbChannels, lycbChannels,swcbChannels, shcbChannels));
             cbChannels.addItemListener(this);
 
-        c.add( lBits = newJLabel( sBits, lxlBits, lylBits, swlBits, shlBits ) );
+        c.add( newJLabel( sBits, lxlBits, lylBits, swlBits, shlBits ) );
         c.add( cbBits = newJComboBoxString(scBits,lxcbBits, lycbBits,swcbBits, shcbBits));
             cbBits.addItemListener(this);
 
@@ -229,14 +229,14 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             lAnchoBanda.setFont(new Font(null, Font.PLAIN, 11));
 
     // Bloque PAQUETE
-        c.add( lPaquete = newJLabel( sPaquete, lxlPaquete, lylPaquete, swlPaquete, shlPaquete ) );
+        c.add( newJLabel( sPaquete, lxlPaquete, lylPaquete, swlPaquete, shlPaquete ) );
 
-        c.add( lMxPaquete = newJLabel( sMxPaquete, lxlMxPaquete, lylMxPaquete, swlMxPaquete, shlMxPaquete ) );
+        c.add( newJLabel( sMxPaquete, lxlMxPaquete, lylMxPaquete, swlMxPaquete, shlMxPaquete ) );
         c.add( snMxPaquete = newJSpinnerListModel(scMxPaquete, lxsnMxPaquete, lysnMxPaquete, swsnMxPaquete, shsnMxPaquete));
             snMxPaquete.setValue(scMxPaqueteDefault);
             snMxPaquete.addChangeListener(this);
 
-        c.add( lM1Paquete = newJLabel( sM1Paquete, lxlM1Paquete, lylM1Paquete, swlM1Paquete, shlM1Paquete ) );
+        c.add( newJLabel( sM1Paquete, lxlM1Paquete, lylM1Paquete, swlM1Paquete, shlM1Paquete ) );
         c.add( snM1Paquete = newJSpinnerListModel(scM1Paquete, lxsnM1Paquete, lysnM1Paquete, swsnM1Paquete, shsnM1Paquete));
             snM1Paquete.setValue(scM1PaqueteDefault);
             snM1Paquete.addChangeListener(this);
@@ -246,7 +246,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             lPacketSizes.setFont(new Font(null, Font.PLAIN, 11));
 
     // Bloque CONEXION
-        c.add( lConex = newJLabel( sConex, lxlConex, lylConex, swlConex, shlConex ) );
+        c.add( newJLabel( sConex, lxlConex, lylConex, swlConex, shlConex ) );
 
         bgLlamanteLlamado = new ButtonGroup();
         c.add( rbLlamante = newJRadioButton(sLlamante,lxrbLlamante,lyrbLlamante,swrbLlamante,shrbLlamante) );
@@ -259,11 +259,11 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             rbLlamado.setVisible(true);
             rbLlamado.addActionListener(this);
         bgLlamanteLlamado.add(rbLlamado);
-    
-        c.add( lHost = newJLabel( sHost, lxlHost, lylHost, swlHost, shlHost ) );
+
+        c.add( newJLabel( sRemote, lxlRemote, lylRemote, swlRemote, shlRemote ) );
         c.add( tHost = newJTextField(null,lxtHost, lytHost,swtHost, shtHost));
 
-        c.add( lPort = newJLabel( sPort, lxlPort, lylPort, swlPort, shlPort ) );
+        c.add( newJLabel( sPort, lxlPort, lylPort, swlPort, shlPort ) );
         c.add( tPort = newJTextField(defPort,lxtPort, lytPort,swtPort, shtPort));
     
         c.add( bLlamada = newJButton(sLlama, lxbLlamada,lybLlamada, swbLlamada,shbLlamada));
@@ -271,10 +271,10 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             bLlamada.setEnabled(true);
             bLlamada.addActionListener(this);
 
-        c.add( bFin = newJButton(sFin, lxbFin,lybFin, swbFin,shbFin));
-            bFin.setActionCommand(acFin);
-            bFin.setEnabled(true);
-            bFin.addActionListener(this);
+        c.add( bFinSalir = newJButton(sFinSalir, lxbFin,lybFin, swbFin,shbFin));
+            bFinSalir.setActionCommand(acSalir);
+            bFinSalir.setEnabled(true);
+            bFinSalir.addActionListener(this);
 
     //Bloque LOG
         output = new JTextArea(5,30);
@@ -302,40 +302,27 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     }
 
     private void dropContentPane() {
-        lAudio = null;
-        lEntrada = null;
         cbEntrada = null;
-        lSalida = null;
         cbSalida = null;
 
     // Bloque CALIDAD
-        lCalidad = null;
-        lRate = null;
         cbRate = null;
-        lChannels = null;
         cbChannels = null;
-        lBits = null;
         cbBits = null;
         lAnchoBanda = null;
 
     // Bloque PAQUETE
-        lPaquete = null;
-        lMxPaquete = null;
         snMxPaquete = null;
-        lM1Paquete = null;
         snM1Paquete = null;
         lPacketSizes = null;
 
     // Bloque CONEXION
-        lConex = null;
         rbLlamante = null;
         rbLlamado = null;
-        lHost = null;
         tHost = null;
-        lPort = null;
         tPort = null;
         bLlamada = null;
-        bFin = null;
+        bFinSalir = null;
 
     //Bloque LOG
         output = null;
@@ -353,13 +340,13 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         Object o = e.getSource();
         
         if ( o==rbLlamante ) {
-            lHost.setEnabled(true);
+//            lRemote.setEnabled(true);
             tHost.setEnabled(true);
             bLlamada.setActionCommand(acLlamante);
             bLlamada.setText(sLlama);
         }
         else if ( o==rbLlamado ) {
-            lHost.setEnabled(false);
+//            lRemote.setEnabled(false);
             tHost.setEnabled(false);
             bLlamada.setActionCommand(acLlamado);
             bLlamada.setText(sEspera);
@@ -387,6 +374,8 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             }
 
             bLlamada.setEnabled(false);
+            bFinSalir.setText(sFinLlamada);
+            bFinSalir.setActionCommand(acFin);
 
             String I = (String)cbEntrada.getSelectedItem();
             String O = (String)cbSalida.getSelectedItem();
@@ -413,20 +402,29 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
         }
 
-        if ( o==bFin ) {
+        if ( o==bFinSalir ) {
             String ac = e.getActionCommand();
             System.out.println ( "bFin:"+ac);
 
-            proceso.Finaliza();
+            if ( ac.equals(acFin) ) { // Cortar Conexión
+                proceso.Finaliza();
 
-            dispose();
+                bLlamada.setEnabled(true);
+                bFinSalir.setText(sFinSalir);
+                bFinSalir.setActionCommand(acSalir);
 
-            dropContentPane();
-
-            System.exit(0);
+            }
+            else if ( ac.equals(acSalir) ){ // Salir de la aplicación
+                dispose();
+                dropContentPane();
+                System.exit(0);
+            }
+            else {
+                System.out.println("DESCONOCIDO");
+            }
         }
 
-            
+        return;
     }
     
     @Override
