@@ -48,7 +48,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
 
 // Bloque CALIDAD / ANCHO DE BANDA
-    private static int xQ0=10, yQ0=80;
+    private static int xQ0=10, yQ0=74;
 
     protected static JLabel lCalidad;
     private static String sCalidad = "Calidad sonido";
@@ -74,14 +74,14 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     
     private static JLabel lAnchoBanda ;
     private static String sAnchoBanda = null;
-    private static int lxlAnchoBanda= 80+xQ0, lylAnchoBanda= 84+yQ0, swlAnchoBanda=290, shlAnchoBanda= 2*tWidth;
+    private static int lxlAnchoBanda= 40+xQ0, lylAnchoBanda= 80+yQ0, swlAnchoBanda=290, shlAnchoBanda= 2*tWidth;
 
 
 // Bloque PAQUETES
-    private static int xP0=300, yP0=80;
+    private static int xP0=300, yP0=74;
 
 //    protected static JLabel lPaquete;
-    private static String sPaquete = "Tamaño paquetes";
+    private static String sPaquete = "Frames por paquete";
     private static int lxlPaquete   = 10+xP0, lylPaquete   = 4+yP0, swlPaquete    =180, shlPaquete   = tWidth;
 
 //    private static JLabel lMxPaquete, lM1Paquete;
@@ -100,7 +100,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
     private static JLabel lPacketSizes ;
     private static String sPacketSizes = null;
-    private static int lxlPacketSizes  = 80+xP0, lylPacketSizes  = 64+yP0, swlPacketSizes =290, shlPacketSizes  = 2*tWidth;
+    private static int lxlPacketSizes  = 40+xP0, lylPacketSizes  = 60+yP0, swlPacketSizes =290, shlPacketSizes  = 2*tWidth;
 
 
 //    protected static JLabel l3;
@@ -133,6 +133,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     private static JButton bLlamada;
     private static String sLlama = "Iniciar Llamada", sEspera = "Esperar llamada";
     private static int lxbLlamada   =220+xC0, lybLlamada   = 24+yC0, swbLlamada   =130, shbLlamada   = 28;
+    private static Thread tEsperaLlamada = null;
 
     private static JButton bFinSalir;
     private static String sFinSalir = "Salir", sFinLlamada = "Fin Llamada";
@@ -145,6 +146,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     // Bloque LOG
     protected static JTextArea output;
     protected static JScrollPane log;
+    private static int ccLog; // Contador caracteres
 
     // ContentPane principal: JSplitPan
     protected static JSplitPane sp;
@@ -282,12 +284,19 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         log = new JScrollPane(output);
         log.setLocation(0,400);
         c.add(log);
+        ccLog=0;
 
     // Redirigir System.out -> a JTextArea output
         PrintStream out = new PrintStream(new OutputStream() {
             @Override
             public void write(int b) throws IOException {
-                output.append(""+(char)(b & 0xFF));
+                char c = (char)(b & 0xFF);
+                output.append(""+c);
+                if ( ccLog>80 || c=='\r' || c=='\n') {
+                    output.setCaretPosition(output.getDocument().getLength());
+                    ccLog=0;
+                }
+                ccLog++;
             }
         });
         System.setOut(out);
@@ -377,61 +386,86 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             bFinSalir.setText(sFinLlamada);
             bFinSalir.setActionCommand(acFin);
 
-            String I = (String)cbEntrada.getSelectedItem();
-            String O = (String)cbSalida.getSelectedItem();
-            String rate = (String)cbRate.getSelectedItem();
-            String channels = (String)cbChannels.getSelectedItem();
-            String bits = (String)cbBits.getSelectedItem();
-            String Mx = (String) snMxPaquete.getValue();
-            String M1 = (String) snM1Paquete.getValue();
+//          SwingUtilities.invokeLater(new Runnable() {
+            tEsperaLlamada = new Thread(new Runnable() {
+                public void run() {
+                    String host = null;
+                    String port = tPort.getText();
+                    if ( ac.equals(acLlamante) ) {
+                        host = tHost.getText();
+                    }
+                
+                    String I = (String)cbEntrada.getSelectedItem();
+                    String O = (String)cbSalida.getSelectedItem();
+                    String rate = (String)cbRate.getSelectedItem();
+                    String channels = (String)cbChannels.getSelectedItem();
+                    String bits = (String)cbBits.getSelectedItem();
+                    String Mx = (String) snMxPaquete.getValue();
+                    String M1 = (String) snM1Paquete.getValue();
 
-            int r = rateToInt ( rate );
-            int c = channelsToInt ( channels );
-            int b = bitsToInt ( bits );
-            int nx = Integer.valueOf(Mx);
-            int n1 = Integer.valueOf(M1);
+                    int r = rateToInt ( rate );
+                    int c = channelsToInt ( channels );
+                    int b = bitsToInt ( bits );
+                    int nx = Integer.valueOf(Mx);
+                    int n1 = Integer.valueOf(M1);
 
-            proceso.Parametros(I,O,r,c,b,nx,n1);
+                    proceso.Parametros(I,O,r,c,b,nx,n1);
 
-            int rc=0;
-            if ( host!=null ) { // client, llamante
-                rc = proceso.ConectaLlamante (host, port) ;
-            }
-            else { // server, llamado. recupera datos de configuración
-                rc = proceso.ConectaLlamado (port) ;
-            }
+                    int rc=0;
+                    if ( host!=null ) { // client, llamante
+                        rc = proceso.ConectaLlamante (host, port) ;
+                    }
+                    else { // server, llamado. recupera datos de configuración
+                        rc = proceso.ConectaLlamado (port) ;
+                    }
 
-            if ( rc < 0 ) {
-                System.out.println("ERROR: ConectaLlamante/Llamado rc="+rc);
-                bLlamada.setEnabled(true);
-                bFinSalir.setText(sFinSalir);
-                bFinSalir.setActionCommand(acSalir);
-                return;
-            }
+                    if ( rc < 0 ) {
+                        System.out.println("ERROR: ConectaLlamante/Llamado rc="+rc);
+                        bLlamada.setEnabled(true);
+                        bFinSalir.setText(sFinSalir);
+                        bFinSalir.setActionCommand(acSalir);
+                        return;
+                    }
 
-            if ( host==null ) { // llamdo, server... actualizar datos de configuración audio
-                r = proceso.getRate();
-                c = proceso.getChannels();
-                b = proceso.getBits();
-                nx = proceso.getPacketXSize();
-                n1 = proceso.getPacket1Size();
-/*
-                String rate = (String)cbRate.getSelectedItem();
-                String channels = (String)cbChannels.getSelectedItem();
-                String bits = (String)cbBits.getSelectedItem();
-                String Mx = (String) snMxPaquete.getValue();
-                String M1 = (String) snM1Paquete.getValue();
-*/
-            }
+                    if ( host==null ) { // llamdo, server... actualizar datos de configuración audio
+                        r = proceso.getRate();
+                        c = proceso.getChannels();
+                        b = proceso.getBits();
+                        nx = proceso.getPacketXSize();
+                        n1 = proceso.getPacket1Size();
+
+                        cbRate.setSelectedIndex( rateToIndex(r) );
+                        cbChannels.setSelectedIndex( channelsToIndex(c) );
+                        cbBits.setSelectedIndex( bitsToIndex(b) );
+                        String Nx = (String) ""+nx;
+                        String N1 = (String) ""+n1;
+                        snMxPaquete.setValue(Nx);
+                        snM1Paquete.setValue(N1);
+                    }
+                    
+                    // Inicio de los hilos de envía captura y reproduce recibido
+                    proceso.EjecutaHilosEnviaRecibe();
+
+                }
+
+            });
+            tEsperaLlamada.start();
             
-            // Inicio de los hilos de envía captura y reproduce recibido
-            proceso.EjecutaHilosEnviaRecibe();
-            
+            return;
         }
 
         if ( o==bFinSalir ) {
             String ac = e.getActionCommand();
-            System.out.println ( "bFin:"+ac);
+
+            if ( tEsperaLlamada!=null ) {
+                proceso.cancelaLlamado();
+
+                try {
+                    tEsperaLlamada.join();
+                } catch (InterruptedException e1) {
+                }
+                tEsperaLlamada=null;
+            }
 
             if ( ac.equals(acFin) ) { // Cortar Conexión
                 proceso.Finaliza();
@@ -449,6 +483,8 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
             else {
                 System.out.println("DESCONOCIDO");
             }
+            
+            return;
         }
 
         return;
@@ -510,32 +546,50 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
         return s;
     }
-    
-    private int rateToInt ( String R ) {
+
 //  private static String scRate[] = { "8 Khz", "16 Khz", "44.1 Khz", "48 Khz" };
+    private int rateToInt ( String R ) {
         int r=0;
         if      ( R.equals(scRate[0]) ) r= 8000;
         else if ( R.equals(scRate[1]) ) r=16000;
         else if ( R.equals(scRate[2]) ) r=44100;
         else if ( R.equals(scRate[3]) ) r=48000;
-        else r=0;
         return r;
     }
-    private int channelsToInt ( String C ) {
+    private int rateToIndex ( int r ) {
+        int i=0;
+        if      ( r== 8000 ) i=0;
+        else if ( r==16000 ) i=1;
+        else if ( r==44100 ) i=2;
+        else if ( r==48000 ) i=3;
+        return i;
+    }
+
 //  private static String scChannels[] = { "mono (1 ch)", "stereo (2 ch)" };
+    private int channelsToInt ( String C ) {
         int c=0;
         if      ( C.equals(scChannels[0]) ) c=1;
         else if ( C.equals(scChannels[1]) ) c=2;
-        else c=0;
         return c;
     }
-    private int bitsToInt ( String B ) {
+    private int channelsToIndex ( int c ) {
+        int i=0;
+        if      ( c==1 ) i=0;
+        else if ( c==2 ) i=1;
+        return i;
+    }
 //  private static String scBits[] = { "8 bits (1 Byte)", "16 bits (2 Byte)" };
+    private int bitsToInt ( String B ) {
         int b=0;
         if      ( B.equals(scBits[0]) ) b= 8;
         else if ( B.equals(scBits[1]) ) b=16;
-        else b=0;
         return b;
+    }
+    private int bitsToIndex ( int b ) {
+        int i=0;
+        if      ( b== 8 ) i=0;
+        else if ( b==16 ) i=1;
+        return i;
     }
 
 

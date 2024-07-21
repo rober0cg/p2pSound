@@ -3,13 +3,16 @@ package sr.Sound;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import sr.Socket.SocketTcp;
+import sr.Socket.SocketUdp;
+
 public class Proceso {
 
 
     private static volatile boolean FIN=false;
 
-    private static SocketUdp sDAT;
-    private static SocketTcp sCTL;
+    private static SocketUdp sDAT=null;
+    private static SocketTcp sCTL=null;
     private static Recorder rREC = null;
     private static Player pPLY = null;
 
@@ -51,6 +54,7 @@ public class Proceso {
     // Socket TCP para la llamada al otro extremo, y por el que se envía la configuración de audio
         try {
             sCTL = new SocketTcp( remote, nPortCTL );
+            sCTL.connect();
             String peer = sCTL.getPeer();
             sDAT.setHost( peer );
         } catch (Exception e) {
@@ -86,6 +90,9 @@ public class Proceso {
         return 0;
     }
 
+    public void cancelaLlamado() {
+        sCTL.cancelAccept();
+    }
     public int ConectaLlamado ( String port ) {
         int nPortCTL = Integer.valueOf(port) ;
         int nPortDAT = nPortCTL ;
@@ -100,7 +107,11 @@ public class Proceso {
 
     // Socket TCP esperando llamada del otro extremo, y por el que recibiremos la configuración de audio
         try {
-            sCTL = new SocketTcp( "", nPortCTL );
+            sCTL = new SocketTcp( nPortCTL );
+            int rc = sCTL.accept();
+            if ( rc<0 ) {
+                return -1;
+            }
             String peer = sCTL.getPeer();
             sDAT.setHost( peer );
             System.out.println("PEER="+peer);

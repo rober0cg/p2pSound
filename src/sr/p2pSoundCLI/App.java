@@ -1,6 +1,8 @@
 package sr.p2pSoundCLI;
 
 import sr.GetOpts.*;
+import sr.Socket.SocketTcp;
+import sr.Socket.SocketUdp;
 import sr.Sound.*;
 
 import java.io.IOException;

@@ -3,6 +3,8 @@ package sr.Sound;
 import java.io.IOException;
 
 import sr.GetOpts.GetOpt;
+import sr.Socket.SocketTcp;
+import sr.Socket.SocketUdp;
 
 public class App {
 

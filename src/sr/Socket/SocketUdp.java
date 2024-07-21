@@ -1,4 +1,4 @@
-package sr.Sound;
+package sr.Socket;
 
 import java.io.*;
 import java.net.*;
@@ -12,9 +12,11 @@ public class SocketUdp {
     private int nPort = 0;
 //    private String sPeer = null;
 
-    private int nSends = 0, nSendParts = 0;
+    private int nSends = 0;
+//    private int nSendParts = 0;
     private int nBytesSend = 0;
-    private int nRecvs = 0, nRecvParts = 0;
+    private int nRecvs = 0;
+//    private int nRecvParts = 0;
     private int nBytesRecv = 0;
     private long lStartTime = 0L, lLastSend = 0L, lLastRecv = 0L;
 
@@ -27,10 +29,10 @@ public class SocketUdp {
         s=new DatagramSocket(nPort);
 
         nSends = 0;
-        nSendParts = 0;
+//        nSendParts = 0;
         nBytesSend = 0;
         nRecvs = 0;
-        nRecvParts = 0;
+//        nRecvParts = 0;
         nBytesRecv = 0;
         lStartTime = System.currentTimeMillis();
         lLastSend = lStartTime+1;
@@ -50,14 +52,8 @@ public class SocketUdp {
         try {
             s.receive(dpr);
         } catch (IOException e) {
-//            e.printStackTrace();
             return -1;
         }
-
-        //dpr.getSocketAddress().toString()
-        //dpr.getData()
-        //dpr.getLength()
-
 
         String sFrom = dpr.getAddress().getHostAddress();
         if (!sFrom.equals(sHost) ) {
@@ -82,7 +78,6 @@ public class SocketUdp {
         try {
             s.send(dps);
         } catch (IOException e) {
-            e.printStackTrace();
             return -1;
         }
        
@@ -94,19 +89,20 @@ public class SocketUdp {
     }
 
     public void showStats() {
-        System.out.println("socketUdp.Sends="+nSends);
-        System.out.println("socketUdp.SendParts="+nSendParts);
-        System.out.println("socketUdp.BytesSend="+nBytesSend);
-        System.out.println("socketUdp.SendRate="+((float)(1000.0*nBytesSend)/(float)(lLastSend-lStartTime)));
-        System.out.println("socketUdp.Recvs="+nRecvs);
-        System.out.println("socketUdp.RecvParts="+nRecvParts);
-        System.out.println("socketUdp.BytesRecv="+nBytesRecv);
-        System.out.println("socketUdp.RecvRate="+((float)(1000.0*nBytesRecv)/(float)(lLastRecv-lStartTime)));
+        System.out.println("socketUdp.showStats");
+        System.out.println("\t.Sends="+nSends);
+//        System.out.println("\t.SendParts="+nSendParts);
+        System.out.println("\t.BytesSend="+nBytesSend);
+        System.out.println("\t.SendRate="+((float)(1000.0*nBytesSend)/(float)(lLastSend-lStartTime)));
+        System.out.println("\t.Recvs="+nRecvs);
+//        System.out.println("\t.RecvParts="+nRecvParts);
+        System.out.println("\t.BytesRecv="+nBytesRecv);
+        System.out.println("\t.RecvRate="+((float)(1000.0*nBytesRecv)/(float)(lLastRecv-lStartTime)));
     }
     
     
     public void close() {
-        System.out.println("socket.close()");
+//        System.out.println("socketUdp.close()");
         showStats();
 
         try {

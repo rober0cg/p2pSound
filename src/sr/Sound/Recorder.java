@@ -41,13 +41,13 @@ public class Recorder { // extends Thread
             Mixer selectedMixer = Utils.getSelectedMixer(AppParams.inDevice);
             if (selectedMixer == null) {
               mic = (TargetDataLine) AudioSystem.getLine(info);
-              System.out.println("mic (AudioSystem): "+mic.toString());
+//              System.out.println("mic (AudioSystem): "+mic.toString());
             }
             else {
               mic = (TargetDataLine) selectedMixer.getLine(info);
-              System.out.println("mic (selectedMixer): "+mic.toString());
+//              System.out.println("mic (selectedMixer): "+mic.toString());
             }
-            
+/*
             System.out.println ("mic.isActive=  "+ mic.isActive());
             System.out.println ("mic.isRunning= "+ mic.isRunning());
             System.out.println ("mic.isOpen=    "+ mic.isOpen());
@@ -56,16 +56,11 @@ public class Recorder { // extends Thread
             System.out.println ("mic.getFormat=    "+ mic.getFormat());
 
             System.out.println ("mic.getBufferSize= "+ mic.getBufferSize());
-
+*/
             mic.flush();
-            System.out.println ("mic flush OK");
-            
-//            mic.open(audioFormat, AppParams.bufferSize); //open the line for recording
             mic.open(audioFormat ); //open the line for recording
             System.out.println ("mic open!!");
-            System.out.println ("mic.getBufferSize= "+ mic.getBufferSize());
-
-            System.out.println("recording initialized...");
+            System.out.println("recorder initialized...");
           
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
@@ -92,7 +87,6 @@ public class Recorder { // extends Thread
 
 
     public int readRecorder ( byte[] buf, int len) {
-
         int l=0;
         while (l<len) {
             int r = mic.read(buf,l,len-l);
@@ -114,14 +108,14 @@ public class Recorder { // extends Thread
 
 
     public void showStats() {
-        System.out.println("mic.Reads="+nReads);
-        System.out.println("mic.Parts="+nParts);
-        System.out.println("mic.BytesRead="+nBytesRead);
-        System.out.println("mic.Running="+(lLastRead-lStartTime)+"ms");
-        System.out.println("mic.Rate="+((float)(1000.0f*nBytesRead)/(float)(lLastRead-lStartTime)));
+        System.out.println("mic.showStats");
+        System.out.println("\t.Reads="+nReads);
+        System.out.println("\t.Parts="+nParts);
+        System.out.println("\t.BytesRead="+nBytesRead);
+        System.out.println("\t.Running="+(lLastRead-lStartTime)+"ms");
+        System.out.println("\t.Rate="+((float)(1000.0f*nBytesRead)/(float)(lLastRead-lStartTime)));
     }
-    
-    
+
     public void stopRecorder() {
         System.out.println("stopRecorder()");
         showStats();

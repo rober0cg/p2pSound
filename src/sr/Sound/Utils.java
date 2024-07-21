@@ -17,9 +17,9 @@ public class Utils {
     public static Mixer getSelectedMixer(String toFind) {
         for(Mixer.Info info : AudioSystem.getMixerInfo()) {
             String mixer = info.getName();
-            System.out.println("getSelectedMixer.Info: "+ info.getName());
+//            System.out.println("getSelectedMixer.Info: "+ info.getName());
             if ( mixer.toLowerCase().contains(toFind.toLowerCase()) ) {
-                System.out.println("getSelectedMixer("+toFind+") FOUND!");
+//                System.out.println("getSelectedMixer("+toFind+") FOUND!");
                 return AudioSystem.getMixer(info);
             }
         }
