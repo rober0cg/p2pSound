@@ -1,6 +1,7 @@
 package sr.p2pSoundGUI;
 
 import sr.Sound.*;
+import sr.GetOpts.*;
 import sr.SimpleLog.SimpleLog;
 
 
@@ -12,9 +13,6 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.*;
 
-//import java.io.PrintStream;
-//import java.io.IOException;
-//import java.io.OutputStream;
 
 
 
@@ -25,8 +23,14 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     private static final String TAG = "P2PSoundGUI";
 
     private static final String appName = "p2pSoundGUI";
-    private static final String defHost = "rober.ddns.net";
-    private static final String defPort = "5555";
+    private static String defHost = "rober.ddns.net";
+    private static String defPort = "5555";
+    private static String defInDevice = null;
+    private static String defOutDevice = null;
+
+    private static int conexLlamante = 1;
+    private static int conexLlamado  = 2;
+    private static int defModoConex  = conexLlamante;
 
     private static Proceso proceso = new Proceso();
 
@@ -160,15 +164,14 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     private static int lxcbLogLevel =100+xL0, lycbLogLevel = 28+yL0, swcbLogLevel =120, shcbLogLevel = tHeight;
 
     private static String scLogLevel[] = SimpleLog.sLevels;
-    private static String scLogLevelDefault = scLogLevel[SimpleLog.getLogLevel()];
+//    private static String scLogLevelDefault = SimpleLog.getLogLevelString();
 
 
 // Bloque LOG
     protected static JTextArea output;
     protected static JScrollPane log;
-//    private static int ccLog; // Contador caracteres
 
-    // ContentPane principal: JSplitPan
+// ContentPane principal: JSplitPan
     protected static JSplitPane sp;
 
 
@@ -223,6 +226,19 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         return jc;
     }
 
+    private String findString ( String f, String[] S ) {
+        String x=null;
+        if ( f==null || f.equals(""))
+            return x;
+        for ( String s : S ) {
+            if ( s.toLowerCase().contains(f.toLowerCase()) ) {
+                x = s;
+                break;
+            }
+        }
+        return x;
+    }
+
     public Container createContentPane() {
         JPanel c = new JPanel(new BorderLayout());
         c.setOpaque(true);
@@ -234,10 +250,12 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         c.add( newJLabel( sEntrada, lxlEntrada, lylEntrada, swlEntrada, shlEntrada ) );
         scEntrada = Utils.getInputDevices();
         c.add( cbEntrada = newJComboBoxString(scEntrada,lxcbEntrada, lycbEntrada,swcbEntrada, shcbEntrada));
+            cbEntrada.setSelectedItem(findString(defInDevice,scEntrada));
 
         c.add( newJLabel( sSalida, lxlSalida, lylSalida, swlSalida, shlSalida ) );
         scSalida = Utils.getOutputDevices();
         c.add( cbSalida = newJComboBoxString(scSalida,lxcbSalida, lycbSalida,swcbSalida, shcbSalida));
+            cbSalida.setSelectedItem(findString(defOutDevice,scSalida));
     
     // Bloque NIVELES
         c.add( newJLabel( sLevel, lxlLevel, lylLevel, swlLevel, shlLevel ) );
@@ -289,24 +307,25 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
         bgLlamanteLlamado = new ButtonGroup();
         c.add( rbLlamante = newJRadioButton(sLlamante,lxrbLlamante,lyrbLlamante,swrbLlamante,shrbLlamante) );
-            rbLlamante.setSelected(true);
+            rbLlamante.setSelected(defModoConex==conexLlamante);
             rbLlamante.setVisible(true);
             rbLlamante.addActionListener(this);
         bgLlamanteLlamado.add(rbLlamante);
         c.add( rbLlamado = newJRadioButton(sLlamado,lxrbLlamado,lyrbLlamado,swrbLlamado,shrbLlamado) );
-            rbLlamado.setSelected(false);
+            rbLlamado.setSelected(defModoConex==conexLlamado);
             rbLlamado.setVisible(true);
             rbLlamado.addActionListener(this);
         bgLlamanteLlamado.add(rbLlamado);
 
         c.add( newJLabel( sRemote, lxlRemote, lylRemote, swlRemote, shlRemote ) );
         c.add( tHost = newJTextField(defHost,lxtHost, lytHost,swtHost, shtHost));
+            tHost.setEnabled(defModoConex==conexLlamante);
 
         c.add( newJLabel( sPort, lxlPort, lylPort, swlPort, shlPort ) );
         c.add( tPort = newJTextField(defPort,lxtPort, lytPort,swtPort, shtPort));
     
-        c.add( bLlamada = newJButton(sLlama, lxbLlamada,lybLlamada, swbLlamada,shbLlamada));
-            bLlamada.setActionCommand(acLlamante);
+        c.add( bLlamada = newJButton(defModoConex==conexLlamante ? sLlama : sEspera, lxbLlamada,lybLlamada, swbLlamada,shbLlamada));
+            bLlamada.setActionCommand( defModoConex==conexLlamante ? acLlamante : acLlamado );
             bLlamada.setEnabled(true);
             bLlamada.addActionListener(this);
 
@@ -321,8 +340,8 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
         c.add( newJLabel( sLogLevel, lxlLogLevel, lylLogLevel, swlLogLevel, shlLogLevel ) );
         c.add( cbLogLevel = newJComboBoxString(scLogLevel,lxcbLogLevel, lycbLogLevel,swcbLogLevel, shcbLogLevel));
+            cbLogLevel.setSelectedItem(SimpleLog.getLogLevelString());
             cbLogLevel.addItemListener(this);
-            cbLogLevel.setSelectedItem(scLogLevelDefault);
 
 
     //Bloque LOG
@@ -332,24 +351,6 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         log = new JScrollPane(output);
         log.setLocation(0,400);
         c.add(log);
-//        ccLog=0;
-
-    // Redirigir System.out -> a JTextArea output
-/*
-        PrintStream out = new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                char c = (char)(b & 0xFF);
-                output.append(""+c);
-                if ( ccLog>80 || c=='\r' || c=='\n') {
-                    output.setCaretPosition(output.getDocument().getLength());
-                    ccLog=0;
-                }
-                ccLog++;
-            }
-        });
-        System.setOut(out);
-*/
 
     // Dividir pantalla en dos
         sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, c, log);
@@ -359,7 +360,7 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
 
 
     // Fijar font para toda la ventana y sus componentes
-        changeFontRecursive(c, new FontUIResource(new Font(null, Font.PLAIN, 14)));
+        changeFont_R(c, new FontUIResource(new Font(null, Font.PLAIN, 14)));
 
 
     // Reaccionar a ESC saliendo
@@ -374,17 +375,15 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
         c.registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 
-
-
         return sp;
     }
 
 
-    private void changeFontRecursive(Container root, Font font) {
+    private void changeFont_R(Container root, Font font) {
         for (Component c : root.getComponents()) {
             c.setFont(font);
             if (c instanceof Container) {
-                changeFontRecursive((Container) c, font);
+                changeFont_R((Container) c, font);
             }  
         }
     }
@@ -767,13 +766,117 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     }
 
 
+
+    private static final String options = "r:p:i:o:d:h";
+    private static final String help = 
+        "opciones válidas:"+
+        "\n\t -r remote -p port, para actuar como llamante (ejempo: -r rober.ddns.net -p 5555, -r 8.8.8.8 -p 8888)"+
+        "\n\t -p port, para actuar como llamado (ejmeplo -p 5555, -p 8888)"+
+        "\n\t -i 'patrón', para especificar dispositivo de captura de sonido distinto de "+AppParams.inDevice+
+        "\n\t -o 'patrón', para especificar dispositivo de salida de sonido distinto de "+AppParams.outDevice+
+        "\n\t -d {TRACE|DEBUG|INFO|WARN|ERROR|NONE}, para establecer log level inicial"+
+        "\n\t -h, esta ayuda"+
+        ""
+    ;
+    private static String remote=null, port=null, inDevice=null, outDevice=null, loglevel=null;
+
+    private static int Argumentos(String[] args) {
+        GetOpt g = new GetOpt( appName, args, options );
+        int c;
+        while ( (c=g.getopt()) != -1) {
+            switch (c) {
+            case 'r':
+                remote = g.getOptarg();
+                defHost = remote;
+                break;
+            case 'p':
+                port = g.getOptarg();
+                defPort = port;
+                break;
+            case 'i':
+                inDevice = g.getOptarg();
+                defInDevice  = inDevice;
+                break;
+            case 'o':
+                outDevice = g.getOptarg();
+                defOutDevice = outDevice;
+                break;
+            case 'd':
+                loglevel = g.getOptarg();
+                SimpleLog.setLogLevel(loglevel);
+                break;
+            case 'h':
+            case '?':
+                System.out.println(help);
+                return 0;
+            default:
+                System.out.println(appName +": opción desconocida '"+(char)c+"'");
+                return -1;
+            }
+        }
+
+        if ( remote!=null && port!=null ) { // entendemos modo llamante
+            defModoConex  = conexLlamante;
+        }
+        else
+        if ( remote==null && port!=null ) { // entendemos modo llamado
+            defModoConex  = conexLlamado;
+        }
+
+
+        return 0;
+    }
+
     public static void main(String[] args) {
+
+        int rc = Argumentos(args);
+        if ( rc!=0 ) {
+            if ( rc<0 ) {
+                System.out.println(appName +": error argumentos");
+            }
+            System.out.println(help);
+            return;
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
             }
         });
+
         return;
     }
     
 }
+
+
+
+/*
+ * 
+ * 
+//
+// Redirigir System.out -> a JTextArea output
+//
+//import java.io.PrintStream;
+//import java.io.IOException;
+//import java.io.OutputStream;
+//    private static int ccLog; // Contador caracteres
+//        ccLog=0;
+//        PrintStream out = new PrintStream(new OutputStream() {
+//            @Override
+//            public void write(int b) throws IOException {
+//                char c = (char)(b & 0xFF);
+//                output.append(""+c);
+//                if ( ccLog>80 || c=='\r' || c=='\n') {
+//                    output.setCaretPosition(output.getDocument().getLength());
+//                    ccLog=0;
+//                }
+//                ccLog++;
+//            }
+//        });
+//        System.setOut(out);
+//
+ * 
+ * 
+ */
+

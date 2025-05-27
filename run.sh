@@ -1,1 +1,1 @@
-java -jar p2pSound.jar
+java -jar p2pSound.jar $*

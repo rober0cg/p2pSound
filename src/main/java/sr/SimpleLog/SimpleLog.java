@@ -8,6 +8,7 @@ public class SimpleLog {
     public static final int ll_WARN    = 3 ;
     public static final int ll_ERROR   = 4 ;
     public static final int ll_NONE    = 5 ;
+    public static final int NUM_LOG_LEVELS = 6 ;
 
     private static int ll = ll_VERBOSE; // defecto
 
@@ -20,6 +21,16 @@ public class SimpleLog {
     }
     public static int getLogLevel() {
         return ll;
+    }
+    public static void setLogLevel ( String s ){
+        for ( int i=0 ; i<NUM_LOG_LEVELS ; i++ ) {
+            if ( sLevels[i].equals(s.toUpperCase())) {
+                ll = i;
+            }
+        }
+    }
+    public static String getLogLevelString() {
+        return sLevels[ll];
     }
 
     public static void LOGV ( String TAG, String s ) {

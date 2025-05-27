@@ -1,6 +1,6 @@
 package sr.Sound;
 
-//import sr.Socket.SocketUdp;
+import sr.Socket.SocketUdp;
 
 import sr.SimpleLog.SimpleLog;
 
@@ -141,14 +141,16 @@ public class SimpleRTPacket {
         }
         return true;
     }
-    
-    public long getlSequenceNum() { return lSequenceNum; }
-    public int getnDataLen() { return nDataLen; }
-    public long getTsTimeStamp() { return tsTimeStamp; }
-    public int getnPacketLen() { return nPacketLen; }
-    public byte[] getbPacketBuf() { return bPacketBuf; }
-    public void setlSequenceNum( long sn ){ lSequenceNum = sn; } // sólo para tests
 
+//  getter & setter
+    public long   getlSequenceNum()         { return lSequenceNum; }
+    public int    getnDataLen()             { return nDataLen; }
+    public long   getTsTimeStamp()          { return tsTimeStamp; }
+    public int    getnPacketLen()           { return nPacketLen; }
+    public byte[] getbPacketBuf()           { return bPacketBuf; }
+    public void   setlSequenceNum(long sn)  { lSequenceNum = sn; } // sólo para tests
+
+//  prints
     public void print( String s ) {
         if ( SimpleLog.getLogLevel() <= SimpleLog.ll_DEBUG ) {
             System.out.println(s+"= {"+lSequenceNum+", "+tsTimeStamp +", "+nDataLen+", "+nPacketLen+"}");
@@ -190,11 +192,13 @@ public class SimpleRTPacket {
         }
     }
 
+//  microsegundos
     private long microTime() {
         return ( System.nanoTime() / 1000L ) ;
     }
-    
 
+
+//  type to buffer
     private void longToByte4 ( long l, byte[] b, int offset ){
         b[offset+0] = (byte) (l & 0xff); l >>= 8;
         b[offset+1] = (byte) (l & 0xff); l >>= 8;
@@ -212,7 +216,7 @@ public class SimpleRTPacket {
         return;
     }
 
-
+//  buffer to type
     private long byteToLong4 ( byte[] b, int offset ) {
         long l = 0L;
         l |= ( b[offset+3] & 0xff); l <<= 8;
@@ -233,8 +237,22 @@ public class SimpleRTPacket {
         return i;
     }
 
+//
+//  S E N D s
+//
+    public int send ( SocketUdp s, byte[] buf, int len) {
+        int rc;
+        
+        rc = sendBuffer(buf, len);
+        if ( rc != rcSendOK )
+            return rc;
 
+        rc = s.send( bPacketBuf, nPacketLen );
+        if ( rc < 0 ) rc = rcSendERR;
+        else          rc = rcSendOK;
 
+        return  rc;
+    }
     public int sendBuffer ( byte[] buf, int len) {
 
         nDataLen = len;
@@ -283,8 +301,21 @@ public class SimpleRTPacket {
         return rcSendOK;
     }
 
+//
+//  R E C V s
+//
+    public int recv ( SocketUdp s, byte[] buf, int len ) {
+        int rc=rcRecvOK;
 
+        int l = s.recv( bPacketBuf, nPacketLen );
+        if ( l<=0 ) {
+            SimpleLog.LOGE(TAG, "recv: SocketUdp cerrado");
+            return rcRecvERR;
+        }
 
+        rc = recvBuffer(buf, len);
+        return rc;
+    }
     public int recvBuffer ( byte[] buf, int len ) {
         int rc=rcRecvOK;
 
@@ -344,7 +375,7 @@ public class SimpleRTPacket {
 
         usDRecvDelay = usDRecv - (usLastRecv - usFirstRecv) ;
         if ( usTimeFirst > 0L ) {
-            if ( usDRecvDelay > usTimeFirst )
+            if ( usDRecvDelay > ( usTimeFirst + usTimeTodos ) )
                 rc = rcRecvRetraso;
         }
 
@@ -361,158 +392,3 @@ public class SimpleRTPacket {
 
 }
 
-
-
-/*
-    public int send ( SocketUdp s, byte[] buf, int len) {
-
-        nDataLen = len;
-        nPacketLen = HEADER_SIZE + nDataLen;
-
-        long now = microTime();
-        if ( usFirstSend == 0L )  usFirstSend = now;
-        if ( usLastSend  == 0L )  usLastSend  = now;
-        usPrevSend = usLastSend;
-        usLastSend = now;
-
-        // protoID
-        intToByte2(idMyRTP, bPacketBuf, 0);
-
-        // dataLen
-        intToByte2(nDataLen, bPacketBuf, 2);
-
-        // sequenceNumber
-        lSequenceNum++;
-        longToByte4(lSequenceNum, bPacketBuf, 4);
-
-        // tsTimeStamp
-        usSend = usLastSend - usFirstSend ;
-        longToByte4(usSend, bPacketBuf, 8);
-        tsTimeStamp = usSend;
-
-        usSendDelay = usSend - (usLastSend - usFirstSend) ;
-
-        System.arraycopy( buf, 0, bPacketBuf, HEADER_SIZE, len );
-
-        if ( ++dSend >= SEND_NUMD ) {
-            printsend("sendBuffer");
-            dSend = 0;
-        }
-
-        int rc = s.send( bPacketBuf, nPacketLen );
-        if ( rc < 0 ) rc = rcSendERR;
-        else          rc = rcSendOK;
-
-        return  rc;
-    }
-
-
-
-
-
-    public int recv ( SocketUdp s, byte[] buf, int len ) {
-        int rc=rcRecvOK;
-
-        int l = s.recv( bPacketBuf, nPacketLen );
-        if ( l<=0 ) {
-            SimpleLog.LOGE(TAG, "recv: SocketUdp cerrado");
-            return rcRecvERR;
-        }
-
-        long now = microTime();
-        if ( usFirstRecv == 0L ) { usFirstRecv = now; }
-        if ( usLastRecv  == 0L ) { usLastRecv  = now; }
-        usPrevRecv = usLastRecv;
-        usLastRecv = now;
-
-
-        // idProto
-        int idProto = byteToInt2 ( bPacketBuf, 0);
-        if ( idProto != idMyRTP ) { // error leve aunque raro raro
-            SimpleLog.LOGW(TAG, "recvBuffer: protocolo desconocido "+idProto);
-            rc = rcRecvIdUfo;
-        }
-
-        // nDataLen
-        nDataLen = byteToInt2 ( bPacketBuf, 2);
-        nPacketLen = HEADER_SIZE + nDataLen;
-        if ( len != nDataLen ) {
-            SimpleLog.LOGW(TAG, "AVISO: recvBuffer: len("+len+") != nDataLen("+nDataLen+")" );
-            printlong("recvBuffer: len!=nDataLen");
-            if ( nDataLen > len ) { nDataLen = len; }
-            rc = rcRecvDiffLen;
-        }
-
-        // lSequenceNumber
-        long seqNum = byteToLong4 ( bPacketBuf, 4);
-        if ( seqNum <= lSequenceNum ) { // repetido!!
-            SimpleLog.LOGW(TAG, "AVISO: recvBuffer: secuencia repetida "+seqNum);
-            printlong("recvBuffer: secuencia repetida");
-            rc = rcRecvRepetido;
-        }
-        else
-        if ( seqNum > lSequenceNum+1 ) {
-            SimpleLog.LOGW(TAG,"AVISO: recvBuffer: salto en secuencia: de "+ lSequenceNum +" a "+seqNum);
-            lSequenceNum = seqNum;
-            rc = rcRecvSalto;
-        }
-        else {
-            lSequenceNum = seqNum;
-            rc = rcRecvOK;
-        }
-
-        // tsTimeStamp
-        usRecv = byteToLong4 ( bPacketBuf, 8);
-        tsTimeStamp = usRecv;
-
-
-        usRecvDelay = usRecv - (usLastRecv - usFirstRecv) ;
-        if ( usTimeFirst > 0L ) {
-            if ( usRecvDelay > usTimeFirst )
-//                rc = rcRecvRetraso;
-                rc = rcRecvOK;
-        }
-
-        System.arraycopy ( bPacketBuf, HEADER_SIZE, buf, 0, nDataLen );
-
-        if ( ++dRecv >= RECV_NUMD ) {
-            printrecv("recvBuffer");
-            dRecv = 0;
-        }
-
-        return rc;
-    }
-
-
-    public int sync ( int frameRate ) {
-        long remoteTimeStamp = tsTimeStamp;
-        long localTimeStamp = (long)( usLastRecv - usFirstRecv );
-
-        long diffTimeStamp = remoteTimeStamp - localTimeStamp; 
-
-        if ( diffTimeStamp == 0) { // sincronizados
-            return 0;
-        }
-        if ( diffTimeStamp > 0 ) { // recibido antes de lo esperado
-            return 0;
-        }
-
-        if ( diffTimeStamp < 0 ) { // recibido con retraso respecto a lo esperado
-        // identificar retraso y reducir buffer de muestras expiradas
-            System.out.println("SimpleRTPacket.sync() retraso = "+ diffTimeStamp + "(" + remoteTimeStamp + "-" + localTimeStamp + ")" );
-            
-            long framePeriod = 1000 / frameRate ; // milisegundos entre cada frame
-            long framesToSkeep = -diffTimeStamp / framePeriod ;
-            
-            return (int)framesToSkeep;
-        }
-
-        return 0;
-    }
-
-
-
-
-
-
-*/

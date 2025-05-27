@@ -140,7 +140,7 @@ public class AppTest {
         assertTrue( rtSend.getnDataLen()     == rtRecv.getnDataLen()     );
         assertTrue( rtSend.getlSequenceNum() == rtRecv.getlSequenceNum() );
         assertTrue( rtSend.getTsTimeStamp()   == rtRecv.getTsTimeStamp()   );
-        assertTrue(rc==rtSend.rcRecvRepetido);
+        assertTrue(rc==SimpleRTPacket.rcRecvRepetido);
         System.out.println();
 
 
@@ -164,7 +164,7 @@ public class AppTest {
         assertTrue( rtSend.getnDataLen()     == rtRecv.getnDataLen()     );
         assertTrue( rtSend.getlSequenceNum() == rtRecv.getlSequenceNum() );
         assertTrue( rtSend.getTsTimeStamp()   == rtRecv.getTsTimeStamp()   );
-        assertTrue(rc==rtSend.rcRecvSalto);
+        assertTrue(rc==SimpleRTPacket.rcRecvSalto);
         System.out.println();
 
 
@@ -185,7 +185,7 @@ public class AppTest {
         assertTrue( rtSend.getnDataLen()     == rtRecv.getnDataLen()     );
         assertTrue( rtSend.getlSequenceNum() <  rtRecv.getlSequenceNum() );
         assertTrue( rtSend.getTsTimeStamp()   == rtRecv.getTsTimeStamp()   );
-        assertTrue(rc==rtSend.rcRecvRepetido);
+        assertTrue(rc==SimpleRTPacket.rcRecvRepetido);
         System.out.println();
 
 
