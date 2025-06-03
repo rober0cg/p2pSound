@@ -13,7 +13,7 @@ public class Recorder { // extends Thread
     
     private int nReads = 0, nParts = 0;
     private int nBytesRead = 0;
-    private long lStartTime = 0L, lLastRead = 0L;
+//    private long lStartTime = 0L, lLastRead = 0L;
 
 
     
@@ -75,8 +75,8 @@ public class Recorder { // extends Thread
             nReads = 0;
             nParts = 0;
             nBytesRead = 0;
-            lStartTime = System.currentTimeMillis();
-            lLastRead = lStartTime+1;
+//            lStartTime = System.currentTimeMillis();
+//            lLastRead = lStartTime+1;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -89,9 +89,9 @@ public class Recorder { // extends Thread
         int l=0;
         while (l<len) {
             int r = mic.read(buf,l,len-l);
-            nParts++;
             if (r<0) break;
             l+=r;
+            nParts++;
         }
 
         if ( l!=len ) {
@@ -100,7 +100,7 @@ public class Recorder { // extends Thread
 
         nReads++;
         nBytesRead+=l;
-        lLastRead = System.currentTimeMillis();
+//        lLastRead = System.currentTimeMillis();
         
         return l;
     }
@@ -127,7 +127,7 @@ public class Recorder { // extends Thread
     public void showStats() {
         SimpleLog.LOGI(TAG, "mic.showStats");
         SimpleLog.LOGI(TAG, "\tReads="+nReads+", Parts="+nParts+", BytesRead="+nBytesRead);
-        SimpleLog.LOGI(TAG, "\tRunning="+(lLastRead-lStartTime)+"ms"+", Rate="+((float)(1000.0f*nBytesRead)/(float)(lLastRead-lStartTime)));
+//        SimpleLog.LOGI(TAG, "\tRunning="+(lLastRead-lStartTime)+"ms"+", Rate="+((float)(1000.0f*nBytesRead)/(float)(lLastRead-lStartTime)));
     }
 
     private void print( String s ) {

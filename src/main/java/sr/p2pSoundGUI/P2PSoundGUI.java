@@ -108,10 +108,10 @@ public class P2PSoundGUI extends JFrame implements ActionListener, ItemListener,
     private static int lxsnM1Paquete   =100+xP0, lysnM1Paquete   =28+yP0, swsnM1Paquete   =120, shsnM1Paquete   = tHeight;
     private static int lxsnMxPaquete   =100+xP0, lysnMxPaquete   =50+yP0, swsnMxPaquete   =120, shsnMxPaquete   = tHeight;
 
-    private static String scM1Paquete[] = { "32", "48", "64", "92", "128", "172", "256", "384", "512", "768", "1024", "1536", "2048", "3072", "4096" };
+    private static String scM1Paquete[] = { "16", "24", "32", "48", "64", "92", "128", "172", "256", "384", "512", "768", "1024", "1536", "2048" };
     private static String scM1PaqueteDefault = scM1Paquete[2];
     private static String scMxPaquete[] = {  "4",  "8", "16", "24",  "32",  "48",  "64",  "92", "128", "256", "384", "512", "768", "1024" };
-    private static String scMxPaqueteDefault = scMxPaquete[4];
+    private static String scMxPaqueteDefault = scMxPaquete[2];
 
     private static JLabel lPacketSizes ;
     private static String sPacketSizes = null;

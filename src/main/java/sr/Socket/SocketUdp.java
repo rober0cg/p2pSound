@@ -10,34 +10,32 @@ public class SocketUdp {
     private String sHost = null;
     private InetAddress iaHost = null;
     private int nPort = 0;
-//    private String sPeer = null;
 
     private int nSends = 0;
-//    private int nSendParts = 0;
     private int nBytesSend = 0;
     private int nRecvs = 0;
-//    private int nRecvParts = 0;
     private int nBytesRecv = 0;
-//    private long lStartTime = 0L, lLastSend = 0L, lLastRecv = 0L;
 
-    public SocketUdp( int port ) throws Exception {
+    public SocketUdp( int rPort ) throws Exception { // socket sin selección de puerto, para envío
 
-//        sHost = host;
-//        iaHost = InetAddress.getByName(sHost);
-        nPort = port;
-
-        s=new DatagramSocket(nPort);
+        s = new DatagramSocket();
+        nPort = rPort;
 
         nSends = 0;
-//        nSendParts = 0;
         nBytesSend = 0;
         nRecvs = 0;
-//        nRecvParts = 0;
         nBytesRecv = 0;
-//        lStartTime = System.currentTimeMillis();
-//        lLastSend = lStartTime+1;
-//        lLastRecv = lStartTime+1;
+    }
 
+    public SocketUdp( int lPort, int rPort ) throws Exception { // socket identificando puerto para recepción
+
+        s=new DatagramSocket(lPort);
+        nPort = rPort;
+
+        nSends = 0;
+        nBytesSend = 0;
+        nRecvs = 0;
+        nBytesRecv = 0;
     }
 
     public void setHost ( String host ) throws Exception {
@@ -67,7 +65,6 @@ public class SocketUdp {
 
         nRecvs++;
         nBytesRecv+=l;
-//        lLastRecv = System.currentTimeMillis();
 
         return l;
     }
@@ -83,7 +80,6 @@ public class SocketUdp {
        
         nSends++;
         nBytesSend+=len;
-//        lLastSend = System.currentTimeMillis();
 
         return len;
     }

@@ -13,7 +13,7 @@ public class Player { // extends Thread
 
     private int nSends = 0, nParts = 0;
     private int nBytesSend = 0;
-    private long lStartTime = 0L, lLastSend = 0L;
+//    private long lStartTime = 0L, lLastSend = 0L;
 
 
     public Player() {
@@ -72,8 +72,8 @@ public class Player { // extends Thread
             nSends = 0;
             nParts = 0;
             nBytesSend = 0;
-            lStartTime = System.currentTimeMillis();
-            lLastSend = lStartTime+1;
+//            lStartTime = System.currentTimeMillis();
+//            lLastSend = lStartTime+1;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -86,9 +86,9 @@ public class Player { // extends Thread
         int l=off;
         while (l<len) {
             int s = spk.write(buf,l,len-l);
-            nParts++;
             if (s<0) break;
             l+=s;
+            nParts++;
         }
         if ( l!=len ) {
             SimpleLog.LOGW(TAG, "sendPlayer l<len ("+l+"<"+len+")");
@@ -96,7 +96,7 @@ public class Player { // extends Thread
 
         nSends++;
         nBytesSend+=l;
-        lLastSend = System.currentTimeMillis();
+//        lLastSend = System.currentTimeMillis();
         
         return l;
     }
@@ -126,7 +126,7 @@ public class Player { // extends Thread
     public void showStats() {
         SimpleLog.LOGI(TAG, "spk.showStats");
         SimpleLog.LOGI(TAG, "\tSends="+nSends+", Parts="+nParts+", BytesSend="+nBytesSend);
-        SimpleLog.LOGI(TAG, "\tRunning="+(lLastSend-lStartTime)+"ms"+", Rate="+((float)(1000.0*nBytesSend)/(float)(lLastSend-lStartTime)));
+//        SimpleLog.LOGI(TAG, "\tRunning="+(lLastSend-lStartTime)+"ms"+", Rate="+((float)(1000.0*nBytesSend)/(float)(lLastSend-lStartTime)));
     }
 
     private void print( String s ) {

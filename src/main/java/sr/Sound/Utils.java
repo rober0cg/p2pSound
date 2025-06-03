@@ -239,4 +239,13 @@ public class Utils {
         }
     }
 
+
+    public static void msSleep ( int ms ) {
+        try {
+            Thread.sleep(ms, 0);
+        } catch (InterruptedException e) {
+        }
+
+    }
+
 }

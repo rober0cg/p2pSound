@@ -12,7 +12,8 @@ public class Proceso {
 
     private static volatile boolean FIN=false;
 
-    private static SocketUdp sDAT=null;
+    private static SocketUdp sRCV=null;
+    private static SocketUdp sSND=null;
     private static SocketTcp sCTL=null;
     private static Recorder rREC = null;
     private static Player pPLY = null;
@@ -32,6 +33,9 @@ public class Proceso {
 
     private static Runnable runFin = null;
 
+    private static final int MS_SLEEP_START_SEND = 600;
+    private static final int MS_SLEEP_FIN = 200;
+    private static final int MS_SLEEP_AFTER_THREAD_START = 200;
 
 //    public Proceso() {
         // nada que hacer
@@ -45,16 +49,32 @@ public class Proceso {
         return;
     }
 
-    public int ConectaLlamante (String remote, String port ) {
-        int nPortCTL = Integer.valueOf(port) ;
-        int nPortDAT = nPortCTL ;
+    private void exitSockets () {
+        if ( sCTL != null ) { sCTL.close(); sCTL = null; }
+        if ( sRCV != null ) { sRCV.close(); sRCV = null; }
+        if ( sSND != null ) { sSND.close(); sSND = null; }
+    }
 
-    // Socket UDP para la transferencia del audio
+    private int initSocketsUdp ( int port ) {
+    // Sockets UDP para la transferencia del audio
         try {
-            sDAT = new SocketUdp( nPortDAT );
+            sRCV = new SocketUdp( port, port );
+            sSND = new SocketUdp( port );
         } catch (Exception e) {
             e.printStackTrace();
-            sDAT = null;
+            exitSockets();
+            return -1;
+        }
+        return 0;
+    }
+
+
+    public int ConectaLlamante (String remote, String port ) {
+        int nPortCTL = Integer.valueOf(port) ;
+        int nPortRCV = nPortCTL ;
+
+    // Sockets UDP para la transferencia de audio, uno para cada sentido
+        if ( initSocketsUdp ( nPortRCV ) != 0 ) {
             return -1;
         }
 
@@ -63,19 +83,15 @@ public class Proceso {
             sCTL = new SocketTcp( remote, nPortCTL );
             int rc = sCTL.connect();
             if ( rc<0 ) {
-                sCTL.close();
-                sDAT.close();
-                sCTL = null;
-                sDAT = null;
+                exitSockets();
                 return -2;
             }
             String peer = sCTL.getPeer();
-            sDAT.setHost( peer );
+            sRCV.setHost(peer);
+            sSND.setHost(peer);
+            SimpleLog.LOGI(TAG, "PEER="+peer);
         } catch (Exception e) {
-            if ( sCTL!= null ) sCTL.close();
-            sDAT.close();
-            sCTL = null;
-            sDAT = null;
+            exitSockets();
             return -2;
         }
 
@@ -101,10 +117,7 @@ public class Proceso {
         // error
         if ( strResp== null || strResp.equals("") || strResp.equals(sMsgReject) ) {
             SimpleLog.LOGE(TAG, "ERROR: parámetros rechazados.");
-            sCTL.close();
-            sDAT.close();
-            sCTL = null;
-            sDAT = null;
+            exitSockets();
             return -3;
         }
 
@@ -121,13 +134,10 @@ public class Proceso {
     }
     public int ConectaLlamado ( String port ) {
         int nPortCTL = Integer.valueOf(port) ;
-        int nPortDAT = nPortCTL ;
+        int nPortRCV = nPortCTL ;
 
-    // Socket UDP para la transferencia del audio
-        try {
-            sDAT = new SocketUdp( nPortDAT );
-        } catch (Exception e) {
-            sDAT = null;
+    // Sockets UDP para la transferencia de audio, uno para cada sentido
+        if ( initSocketsUdp ( nPortRCV ) != 0 ) {
             return -1;
         }
 
@@ -136,20 +146,15 @@ public class Proceso {
             sCTL = new SocketTcp( nPortCTL );
             int rc = sCTL.accept();
             if ( rc!=0 ) {  // <0 error, >0 cancel
-                sCTL.close();
-                sDAT.close();
-                sCTL = null;
-                sDAT = null;
+                exitSockets();
                 return rc;
             }
             String peer = sCTL.getPeer();
-            sDAT.setHost( peer );
+            sRCV.setHost(peer);
+            sSND.setHost(peer);
             SimpleLog.LOGI(TAG, "PEER="+peer);
         } catch (Exception e) {
-            if ( sCTL!=null ) sCTL.close();
-            sDAT.close();
-            sCTL = null;
-            sDAT = null;
+            exitSockets();
             return -2;
         }
 
@@ -173,10 +178,7 @@ public class Proceso {
             byte[] bufReject = strReject.getBytes();
             sCTL.send(bufReject);
             SimpleLog.LOGI(TAG, "SEND srtReject=" + strReject );
-            sCTL.close();
-            sDAT.close();
-            sCTL = null;
-            sDAT = null;
+            exitSockets();
             return -3;
         }
 
@@ -220,43 +222,48 @@ public class Proceso {
         pPLY = new Player(AppParams.outDevice);
 
 
-        Thread tPeerCTL = new Thread( new Runnable() {
+        Thread tPeerCtrl = new Thread( new Runnable() {
             public void run() {
-                SimpleLog.LOGI(TAG, "thread PeerCTL start");
-                PeerCTL();
-                SimpleLog.LOGI(TAG, "thread PeerCTL end");
+                SimpleLog.LOGI(TAG, "thread PeerCtrl START");
+                PeerCtrl();
+                SimpleLog.LOGI(TAG, "thread PeerCtrl END");
             }
         });
 
-        Thread tPlayRCV = new Thread(new Runnable() {
+        Thread tPlayRecvd = new Thread(new Runnable() {
             public void run() {
-                SimpleLog.LOGI(TAG, "thread PlayRCV start");
-                PlayRCV();
-                SimpleLog.LOGI(TAG, "thread PlayRCV end");
+                SimpleLog.LOGI(TAG, "thread PlayRecvd START");
+                PlayRecvd();
+                SimpleLog.LOGI(TAG, "thread PlayRecvd END");
             }
         });
 
-        Thread tSendREC = new Thread(new Runnable() {
+        Thread tSendRecrd = new Thread(new Runnable() {
             public void run() {
-                SimpleLog.LOGI(TAG, "thread SendREC start");
-                SendREC();
-                SimpleLog.LOGI(TAG, "thread SendREC end");
+                SimpleLog.LOGI(TAG, "thread SendRecrd START");
+                SendRecrd();
+                SimpleLog.LOGI(TAG, "thread SendRecrd END");
             }
 
         });
 
 
-        FIN = false;
         runFin = cbFin ;
+        FIN = false;
 
-        tPeerCTL.start();
-        tPlayRCV.start();
-        tSendREC.start();
+        tPeerCtrl.start();
+        Utils.msSleep ( MS_SLEEP_AFTER_THREAD_START );
+
+        tPlayRecvd.start();
+        Utils.msSleep ( MS_SLEEP_AFTER_THREAD_START );
+
+        tSendRecrd.start();
+        Utils.msSleep ( MS_SLEEP_AFTER_THREAD_START );
 
         return;
     }
 
-    private void PeerCTL() {
+    private void PeerCtrl() {
 
         while (!FIN) {
             byte bufRecv[] = new byte[128];
@@ -290,12 +297,13 @@ public class Proceso {
         }
     }
 
-    private void PlayRCV( ) {
-        pPLY.startPlayer();
+    private void PlayRecvd( ) {
         long usFirst = AppParams.getTimePacket1();
         long usTodos = AppParams.getTimePacket();
 
         SimpleRTPacket rt = new SimpleRTPacket(usFirst,usTodos);
+
+        pPLY.startPlayer();
 
         // Primera recepción con buffer mayor
         {
@@ -303,7 +311,7 @@ public class Proceso {
             byte[] b = new byte[ l ];
             rt.setDataLen(l);
 /**/
-            int rc = sDAT.recv( rt.getbPacketBuf(), rt.getnPacketLen() );
+            int rc = sRCV.recv( rt.getbPacketBuf(), rt.getnPacketLen() );
             if ( rc<=0 ) {
                 SimpleLog.LOGE(TAG, "thread PlayRCV: socket closed");
                 FIN=true;
@@ -342,7 +350,7 @@ public class Proceso {
             rt.setDataLen(l);
             while (!FIN) {
 /**/
-                int rc = sDAT.recv( rt.getbPacketBuf(), rt.getnPacketLen() );
+                int rc = sRCV.recv( rt.getbPacketBuf(), rt.getnPacketLen() );
                 if ( rc<=0 ) {
                     SimpleLog.LOGE(TAG, "thread PlayRCV: socket closed");
                     FIN=true;
@@ -378,9 +386,12 @@ public class Proceso {
         return;
     }
 
-    private void SendREC () {
-        rREC.startRecorder();
+    private void SendRecrd () {
         SimpleRTPacket rt = new SimpleRTPacket();
+
+        rREC.startRecorder();
+
+        Utils.msSleep(MS_SLEEP_START_SEND);
 
         // Primer envío con buffer mayor
         {
@@ -389,7 +400,7 @@ public class Proceso {
             rt.setDataLen(l);
             int r = rREC.readRecorder(b,l);
             rt.sendBuffer ( b, r );
-            int rc = sDAT.send( rt.getbPacketBuf(), rt.getnPacketLen() );
+            int rc = sSND.send( rt.getbPacketBuf(), rt.getnPacketLen() );
             if ( rc<=0 ) {
                 SimpleLog.LOGE(TAG, "thread SendREC: socket closed");
                 FIN=true;
@@ -404,7 +415,7 @@ public class Proceso {
             while (!FIN) {
                 int r = rREC.readRecorder(b,AppParams.bufferSize);
                 rt.sendBuffer ( b, r );
-                int rc = sDAT.send( rt.getbPacketBuf(), rt.getnPacketLen() );
+                int rc = sSND.send( rt.getbPacketBuf(), rt.getnPacketLen() );
                 if ( rc<=0 ) {
                     SimpleLog.LOGE(TAG, "thread SendREC: socket closed");
                     FIN=true;
@@ -437,16 +448,9 @@ public class Proceso {
     private void Fin () {
         FIN = true;
 
-        try {
-            Thread.sleep(200, 0); //espera 0,2seg
-        } catch (InterruptedException e) {
-        } 
+        Utils.msSleep(MS_SLEEP_FIN);
 
-        if ( sCTL != null ) sCTL.close();
-        if ( sDAT != null ) sDAT.close();
-
-        sCTL = null;
-        sDAT = null;
+        exitSockets();
 
         runFin = null ;
 

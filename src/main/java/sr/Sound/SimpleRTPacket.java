@@ -41,7 +41,7 @@ public class SimpleRTPacket {
     private int nCommand;
     private static final int nCmdSend = 0; // command DATA
     private static final int nCmdSendTS0 = 1;  // commmand DATA + resetTimeStamp
-    private static final long usMaxTS = ( 30L * 1000L * 1000L ); // 30 seg para test
+    private static final long usMaxTS = ( 4L * 1000L * 1000L * 1000L ); // 4mil millones, 30 seg para test
 
     private long lSequenceNum; // 4 bytes: valor entre 0 y 4.000.000.000 
     private long tsTimeStamp; // 4 bytes: microsegundos desde primer envío
@@ -56,23 +56,24 @@ public class SimpleRTPacket {
     private long usTimeTodos = 0L ;
  
     private long usDSend = 0L;
-    @SuppressWarnings("unused")
-    private long usDSendDelay = 0L;
     private long usFirstSend = 0L;
-    @SuppressWarnings("unused")
-    private long usPrevSend = 0L;
     private long usLastSend = 0L;
     private long usDRecv = 0L;
     private long usDRecvDelay = 0L;
     private long usFirstRecv = 0L;
-    @SuppressWarnings("unused")
-    private long usPrevRecv = 0L;
     private long usLastRecv = 0L;
 
-    private static final int SEND_NUMD = 10000;
-    private static final int RECV_NUMD = 1000;
-    private static int dSend = SEND_NUMD;
-    private static int dRecv = RECV_NUMD;
+    @SuppressWarnings("unused")
+    private long usDSendDelay = 0L;
+    @SuppressWarnings("unused")
+    private long usPrevSend = 0L;
+    @SuppressWarnings("unused")
+    private long usPrevRecv = 0L;
+
+    private static final int SEND_NUM_TO_LOG = 10000;
+    private static final int RECV_NUM_TO_LOG = 1000;
+    private static int dSend = SEND_NUM_TO_LOG;
+    private static int dRecv = RECV_NUM_TO_LOG;
 
     public static final int rcSendOK = 0;
     public static final int rcSendERR = -1;
@@ -93,8 +94,8 @@ public class SimpleRTPacket {
         nDataLen = 0;
         nPacketLen = HEADER_SIZE + nDataLen;
         bPacketBuf = null;
-        dSend = SEND_NUMD;
-        dRecv = RECV_NUMD;
+        dSend = SEND_NUM_TO_LOG;
+        dRecv = RECV_NUM_TO_LOG;
         validate("SimpleRTPacket()");
     }
     public SimpleRTPacket ( int len) {
@@ -105,8 +106,8 @@ public class SimpleRTPacket {
         nDataLen = len;
         nPacketLen = HEADER_SIZE + nDataLen;
         bPacketBuf = new byte[ nPacketLen ];
-        dSend = SEND_NUMD;
-        dRecv = RECV_NUMD;
+        dSend = SEND_NUM_TO_LOG;
+        dRecv = RECV_NUM_TO_LOG;
         validate("SimpleRTPacket(len)");
     }
     public SimpleRTPacket ( long usFirst, long usTodos ) {
@@ -117,8 +118,8 @@ public class SimpleRTPacket {
         nDataLen = 0;
         nPacketLen = HEADER_SIZE + nDataLen;
         bPacketBuf = null;
-        dSend = SEND_NUMD;
-        dRecv = RECV_NUMD;
+        dSend = SEND_NUM_TO_LOG;
+        dRecv = RECV_NUM_TO_LOG;
         validate("SimpleRTPacket(us1st,usAll)");
     }
 
@@ -293,7 +294,7 @@ public class SimpleRTPacket {
 
         System.arraycopy( buf, 0, bPacketBuf, HEADER_OFFSET_DATA, len );
 
-        if ( ++dSend >= SEND_NUMD || nCommand==nCmdSendTS0 ) {
+        if ( ++dSend >= SEND_NUM_TO_LOG || nCommand==nCmdSendTS0 ) {
             printsend("sendBuffer");
             dSend = 0;
         }
@@ -382,7 +383,7 @@ public class SimpleRTPacket {
 
         System.arraycopy ( bPacketBuf, HEADER_OFFSET_DATA, buf, 0, nDataLen );
 
-        if ( ++dRecv >= RECV_NUMD || nCommand==nCmdSendTS0 ) {
+        if ( ++dRecv >= RECV_NUM_TO_LOG || nCommand==nCmdSendTS0 ) {
             printrecv("recvBuffer");
             dRecv = 0;
         }
